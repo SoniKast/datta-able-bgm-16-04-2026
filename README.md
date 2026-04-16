@@ -1,4 +1,4 @@
-# datta-able-BGM-16-04-2026
+# pipeline
 
 
 
@@ -15,14 +15,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin http://10.46.31.166:8929/bdiakite/datta-able-bgm-16-04-2026.git
+git remote add origin http://10.46.31.253:8929/balla/pipeline.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-* [Set up project integrations](http://10.46.31.166:8929/bdiakite/datta-able-bgm-16-04-2026/-/settings/integrations)
+* [Set up project integrations](http://10.46.31.253:8929/balla/pipeline/-/settings/integrations)
 
 ## Collaborate with your team
 

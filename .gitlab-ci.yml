@@ -1,0 +1,46 @@
+# Les stages dans l'ordre souhaité
+image: docker:29.4.0-dind
+stages:
+  - build dev app
+  - build prod app
+  - deploy
+  
+build dev app:
+  image: docker:29.4.0
+  stage: build dev app
+  tags:
+    - runner-docker
+  before_script:
+    - apk update && apk upgrade
+  script:
+    - echo "Connexion au registry docker en cours ..."
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - echo "Build de l'image docker en cours ..."
+    - docker build -t $CI_REGISTRY_IMAGE:dev .
+    - echo "Push de l'image docker en cours ..."
+    - docker push $CI_REGISTRY_IMAGE:dev
+    - echo "Image poussée avec succès !"
+
+build prod app:
+  image: docker:29.4.0
+  stage: build prod app
+  tags:
+    - runner-docker
+  before_script:
+    - apk update && apk upgrade
+  script:
+    - echo "Connexion au registry docker en cours ..."
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:prod -f Dockerfile-alpine .
+    - docker push $CI_REGISTRY_IMAGE:prod
+
+deploy prod:
+  stage: deploy
+  image: alpine:latest
+  tags:
+    - runner-ssh
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE:prod &&
+    - docker rm -f flask-datta-able-1.0.31 || true &&
+    - docker run -d -p 5005:5005 --name flask-datta-able-1.0.31 $CI_REGISTRY_IMAGE:prod
