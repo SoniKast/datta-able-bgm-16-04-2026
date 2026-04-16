@@ -141,7 +141,7 @@ deploy-production:
     - echo "Application déployée en Production."
   environment:
     name: production
-    url: http://10.46.31.166:5085
+    url: http://10.46.31.166:5005
   when: manual
   only:
     - main
@@ -167,7 +167,7 @@ rollback-production:
       -e DB_PASS=$DB_PASS
       -e DB_NAME=$DB_NAME
       -e SECRET_KEY=$SECRET_KEY
-      $CI_REGISTRY_IMAGE:stable
+      $CI_REGISTRY_IMAGE:latest
     - echo "Rollback terminé. La version stable est de nouveau en production."
   when: manual
   only:

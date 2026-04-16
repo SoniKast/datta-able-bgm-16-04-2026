@@ -5,6 +5,7 @@ services:
     image: "nginx:stable-alpine"
     ports:
       - "5085:5085"
+      - "5005:5085"
     volumes:
       - ./nginx:/etc/nginx/conf.d
     networks:
