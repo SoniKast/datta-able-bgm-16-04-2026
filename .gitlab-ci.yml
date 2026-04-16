@@ -1,46 +1,135 @@
-# Les stages dans l'ordre souhaité
-image: docker:29.4.0-dind
+image: docker:latest
+
+services:
+  - docker:dind
+
 stages:
-  - build dev app
-  - build prod app
-  - deploy
-  
-build dev app:
-  image: docker:29.4.0
-  stage: build dev app
-  tags:
-    - runner-docker
-  before_script:
-    - apk update && apk upgrade
-  script:
-    - echo "Connexion au registry docker en cours ..."
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - echo "Build de l'image docker en cours ..."
-    - docker build -t $CI_REGISTRY_IMAGE:dev .
-    - echo "Push de l'image docker en cours ..."
-    - docker push $CI_REGISTRY_IMAGE:dev
-    - echo "Image poussée avec succès !"
+  - build
+  - test
+  - staging
+  - backup
+  - production
+  - rollback
 
-build prod app:
-  image: docker:29.4.0
-  stage: build prod app
+build-image:
+  stage: build
   tags:
-    - runner-docker
-  before_script:
-    - apk update && apk upgrade
+    - runner-BGM-16-04-2026
   script:
-    - echo "Connexion au registry docker en cours ..."
+    - echo "Connexion au registry GitLab..."
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build -t $CI_REGISTRY_IMAGE:prod -f Dockerfile-alpine .
-    - docker push $CI_REGISTRY_IMAGE:prod
+    - echo "Build de l'image Docker..."
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - echo "Push de l'image vers le registry..."
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  only:
+    - main
 
-deploy prod:
-  stage: deploy
-  image: alpine:latest
+unit-test:
+  stage: test
+  image: python:3.9-alpine
   tags:
-    - runner-ssh
+    - runner-BGM-16-04-2026
+  before_script:
+    - pip install -r requirements.txt
+    - pip install pytest
   script:
+    - echo "Aucun test unitaire trouvé. Vous devriez en créer dans un dossier 'tests/'."
+    - pytest tests/
+  when: manual
+  allow_failure: true
+
+linter:
+  stage: test
+  image: python:3.9-alpine
+  tags:
+    - runner-BGM-16-04-2026
+  before_script:
+    - pip install flake8
+  script:
+    - echo "Lancement du linter Flake8..."
+    - flake8 --ignore=E501,F401,F841 .
+  allow_failure: true
+
+sast-analysis:
+  stage: test
+  image: python:3.9-alpine
+  tags:
+    - runner-BGM-16-04-2026
+  before_script:
+    - pip install bandit
+  script:
+    - echo "Lancement de l'analyse de sécurité SAST avec Bandit..."
+    - bandit -r .
+  allow_failure: true
+
+deploy-staging:
+  stage: staging
+  tags:
+    - runner-BGM-16-04-2026
+  script:
+    - echo "Déploiement sur l'environnement de Staging..."
+    - export APP_IMAGE=$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker-compose -f docker-compose.yml up -d --build appseed-app
+    - echo "Application déployée en Staging."
+  environment:
+    name: staging
+    url: http://10.46.31.166:5085
+  when: manual
+
+backup-database:
+  stage: backup
+  tags:
+    - runner-BGM-16-04-2026
+  script:
+    - echo "Création d'un backup de la base de données de production..."
+    - docker exec mysql_db /usr/bin/mysqldump -u root -p$MYSQL_ROOT_PASSWORD $MYSQL_DATABASE > db_backup.sql
+    - echo "Backup créé."
+  artifacts:
+    paths:
+      - db_backup.sql
+    expire_in: 1 week
+  when: manual
+  only:
+    - main
+
+deploy-production:
+  stage: production
+  tags:
+    - runner-BGM-16-04-2026
+  script:
+    - echo "Déploiement sur l'environnement de Production..."
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE:prod &&
-    - docker rm -f flask-datta-able-1.0.31 || true &&
-    - docker run -d -p 5005:5005 --name flask-datta-able-1.0.31 $CI_REGISTRY_IMAGE:prod
+    # Sauvegarde de l'ancienne image "latest" en "stable"
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - docker tag $CI_REGISTRY_IMAGE:latest $CI_REGISTRY_IMAGE:stable
+    - docker push $CI_REGISTRY_IMAGE:stable
+    # Déploiement de la nouvelle image
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:latest
+    - echo "Déploiement en production via docker-compose..."
+    - export APP_IMAGE=$CI_REGISTRY_IMAGE:latest
+    - docker-compose -f docker-compose.yml up -d appseed-app
+    - echo "Application déployée en Production."
+  environment:
+    name: production
+    url: http://10.46.31.166:5085
+  when: manual
+  only:
+    - main
+
+rollback-production:
+  stage: rollback
+  tags:
+    - runner-BGM-16-04-2026
+  script:
+    - echo "Rollback vers la version stable précédente..."
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE:stable
+    - export APP_IMAGE=$CI_REGISTRY_IMAGE:stable
+    - docker-compose -f docker-compose.yml up -d appseed-app
+    - echo "Rollback terminé. La version stable est de nouveau en production."
+  when: manual
+  only:
+    - main

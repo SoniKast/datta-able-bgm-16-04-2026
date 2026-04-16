@@ -15,6 +15,16 @@ services:
     networks:
       - db_network
       - web_network
+    environment:
+      - DB_ENGINE=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USERNAME=myuser
+      - DB_PASS=mypassword
+      - DB_NAME=mydatabase
+      - SECRET_KEY=S3cret_999
+    depends_on:
+      - db
   nginx:
     container_name: nginx
     restart: unless-stopped
@@ -28,10 +38,25 @@ services:
         condition: service_healthy    # Attend que l'app soit prête, pas juste lancée
     networks:
       - web_network
+  db:
+    image: alpine/mysql:15.2
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - db_network
     
 networks:
   db_network:
     driver: bridge
   web_network:
     driver: bridge
- 
+
+volumes:
+  mysql_data:
