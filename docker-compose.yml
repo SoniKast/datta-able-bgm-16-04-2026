@@ -10,7 +10,7 @@ services:
     networks:
       - web_network
   db:
-    image: alpine/mysql:15.2
+    image: "mysql:latest"
     container_name: mysql_db
     restart: always
     environment:
