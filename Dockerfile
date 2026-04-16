@@ -30,7 +30,7 @@ ENV DEBUG True
 ENV PATH=/root/.local/bin:$PATH
 
 # Installation de curl uniquement (si vraiment nécessaire pour un healthcheck)
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl mariadb-connector-c
 
 # On récupère uniquement les packages installés dans le builder
 COPY --from=builder /root/.local /root/.local
