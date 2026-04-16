@@ -1,5 +1,8 @@
 services:
   appseed-app:
+    build:
+      context: .
+      dockerfile: Dockerfile-alpine
     container_name: appseed_app
     restart: always
     healthcheck:
