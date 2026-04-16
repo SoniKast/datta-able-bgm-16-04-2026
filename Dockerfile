@@ -1,25 +1,41 @@
-FROM python:3.9
+# --- ÉTAPE 1 : Builder ---
+FROM python:3.9-alpine AS builder
 
-# set environment variables
+WORKDIR /app
+
+# Empêcher Python de générer des fichiers .pyc
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Installation des dépendances système nécessaires pour compiler certains packages Python
+RUN apk add --no-cache gcc musl-dev linux-headers libffi-dev mariadb-dev
+
+COPY requirements.txt .
+
+# Installation des dépendances dans un dossier local pour les copier facilement
+RUN pip install --upgrade pip && \
+    pip install --user --no-cache-dir -r requirements.txt
+
+
+# --- ÉTAPE 2 : Image Finale ---
+FROM python:3.9-alpine
+
+WORKDIR /app
+
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV FLASK_APP run.py
 ENV DEBUG True
+# On ajoute le chemin des binaires installés dans le builder
+ENV PATH=/root/.local/bin:$PATH
 
-COPY requirements.txt .
+# Installation de curl uniquement (si vraiment nécessaire pour un healthcheck)
+RUN apk add --no-cache curl
 
-# install python dependencies
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+# On récupère uniquement les packages installés dans le builder
+COPY --from=builder /root/.local /root/.local
 
-COPY env.sample .env
-
+# Copie du code source
 COPY . .
 
-# Init migration folder
-# RUN flask db init # to be executed only once
-RUN flask db migrate
-RUN flask db upgrade
-
-# gunicorn
 CMD ["gunicorn", "--config", "gunicorn-cfg.py", "run:app"]
