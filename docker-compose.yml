@@ -14,9 +14,9 @@ services:
     container_name: mysql_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: mydatabase
-      MYSQL_USER: myuser
+      MYSQL_ROOT_PASSWORD: rootpswd
+      MYSQL_DATABASE: datta-able
+      MYSQL_USER: username
       MYSQL_PASSWORD: mypassword
     volumes:
       - mysql_data:/var/lib/mysql
