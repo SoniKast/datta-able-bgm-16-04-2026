@@ -70,8 +70,22 @@ deploy-staging:
     - runner-BGM-16-04-2026
   script:
     - echo "Déploiement sur l'environnement de Staging..."
-    - export APP_IMAGE=$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
-    - docker-compose -f docker-compose.yml up -d --build appseed-app
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker rm -f appseed_app || true
+    - >
+      docker run -d --name appseed_app
+      --network datta-able-bgm-16-04-2026_web_network
+      --network datta-able-bgm-16-04-2026_db_network
+      --restart always
+      -e DB_ENGINE=mysql
+      -e DB_HOST=mysql_db
+      -e DB_PORT=3306
+      -e DB_USERNAME=$DB_USERNAME
+      -e DB_PASS=$DB_PASS
+      -e DB_NAME=$DB_NAME
+      -e SECRET_KEY=$SECRET_KEY
+      $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
     - echo "Application déployée en Staging."
   environment:
     name: staging
@@ -103,15 +117,27 @@ deploy-production:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     # Sauvegarde de l'ancienne image "latest" en "stable"
     - docker pull $CI_REGISTRY_IMAGE:latest || true
-    - docker tag $CI_REGISTRY_IMAGE:latest $CI_REGISTRY_IMAGE:stable
-    - docker push $CI_REGISTRY_IMAGE:stable
-    # Déploiement de la nouvelle image
+    - docker tag $CI_REGISTRY_IMAGE:latest $CI_REGISTRY_IMAGE:stable || true
+    - docker push $CI_REGISTRY_IMAGE:stable || true
+    # Pull et tag de la nouvelle image
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:latest
     - docker push $CI_REGISTRY_IMAGE:latest
-    - echo "Déploiement en production via docker-compose..."
-    - export APP_IMAGE=$CI_REGISTRY_IMAGE:latest
-    - docker-compose -f docker-compose.yml up -d appseed-app
+    # Redéploiement du conteneur applicatif
+    - docker rm -f appseed_app || true
+    - >
+      docker run -d --name appseed_app
+      --network datta-able-bgm-16-04-2026_web_network
+      --network datta-able-bgm-16-04-2026_db_network
+      --restart always
+      -e DB_ENGINE=mysql
+      -e DB_HOST=mysql_db
+      -e DB_PORT=3306
+      -e DB_USERNAME=$DB_USERNAME
+      -e DB_PASS=$DB_PASS
+      -e DB_NAME=$DB_NAME
+      -e SECRET_KEY=$SECRET_KEY
+      $CI_REGISTRY_IMAGE:latest
     - echo "Application déployée en Production."
   environment:
     name: production
@@ -128,8 +154,20 @@ rollback-production:
     - echo "Rollback vers la version stable précédente..."
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker pull $CI_REGISTRY_IMAGE:stable
-    - export APP_IMAGE=$CI_REGISTRY_IMAGE:stable
-    - docker-compose -f docker-compose.yml up -d appseed-app
+    - docker rm -f appseed_app || true
+    - >
+      docker run -d --name appseed_app
+      --network datta-able-bgm-16-04-2026_web_network
+      --network datta-able-bgm-16-04-2026_db_network
+      --restart always
+      -e DB_ENGINE=mysql
+      -e DB_HOST=mysql_db
+      -e DB_PORT=3306
+      -e DB_USERNAME=$DB_USERNAME
+      -e DB_PASS=$DB_PASS
+      -e DB_NAME=$DB_NAME
+      -e SECRET_KEY=$SECRET_KEY
+      $CI_REGISTRY_IMAGE:stable
     - echo "Rollback terminé. La version stable est de nouveau en production."
   when: manual
   only:
