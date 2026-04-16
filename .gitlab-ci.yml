@@ -98,7 +98,7 @@ backup-database:
     - runner-BGM-16-04-2026
   script:
     - echo "Création d'un backup de la base de données de production..."
-    - docker exec mysql_db /usr/bin/mysqldump -u root -p$MYSQL_ROOT_PASSWORD $MYSQL_DATABASE > db_backup.sql
+    - docker exec -e MYSQL_PWD=$MYSQL_ROOT_PASSWORD mysql_db /usr/bin/mysqldump -u root $MYSQL_DATABASE > db_backup.sql
     - echo "Backup créé."
   artifacts:
     paths:
