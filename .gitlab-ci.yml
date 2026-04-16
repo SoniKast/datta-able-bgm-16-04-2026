@@ -31,6 +31,7 @@ unit-test:
   tags:
     - runner-BGM-16-04-2026
   before_script:
+    - apk update && apk add --no-cache mariadb-dev gcc musl-dev pkgconfig
     - pip install -r requirements.txt
     - pip install pytest
   script:
