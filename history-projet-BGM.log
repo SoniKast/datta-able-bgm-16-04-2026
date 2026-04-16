@@ -1,0 +1,145 @@
+    1  watch -n 1 docker ps
+    2  git clone https://gitlab.com/rluna-gitlab/gitlab-ce.git1
+    3  docker exec -it gitlab-ce cat /etc/gitlab/initial_root_password
+    4  cd gitlab-ce
+    5  docker compose up -d --build
+    6  docker exec -it gitlab-ce cat /etc/gitlab/initial_root_password
+    7  cd ...
+    8  cd ..
+    9  git clone http://10.46.31.166:8929/bdiakite/pipeline.git
+   10  cd pipeline
+   11  git add .
+   12  git commit -m "added stuff"
+   13  git config --global user.name "Balla DIAKITE"
+   14  git config --global user.email "balla.diakite57@outlook.fr"
+   15  git commit -m "added stuff"
+   16  git push
+   17  # Download the binary for your system
+   18  sudo curl -L --output /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64
+   19  # Give it permission to execute
+   20  sudo chmod +x /usr/local/bin/gitlab-runner
+   21  # Create a GitLab Runner user
+   22  sudo useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/bash
+   23  # Install and run as a service
+   24  sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner
+   25  sudo gitlab-runner start
+   26  docker exec -it gitlab-runner bash
+   27  sudo nano /mnt/docker-volumes/gitlab
+   28  sudo nano /mnt/docker-volumes/gitlab/runner/config.toml
+   29  wget https://gitlab.com/gitlab-org/cli/-/releases/...
+   30  wget https://gitlab.com/gitlab-org/cli/-/releases/ ...
+   31  sudo apt install ./glab_1...deb
+   32  sudo apt install ./glab_1 ...deb
+   33  sudo apt install glab
+   34  source <(glab completion -s bash)
+   35  glab completion -s bash > /etc/bash_completion.d/glab
+   36  sudo glab completion -s bash > /etc/bash_completion.d/glab
+   37  source .bashrc
+   38  glab auth login --hostname 10.46.31.166 --token glpat-pt1foST96mMB4TmPoor0-G86MQp1OjMH.01.0w00pvj7p --git-protocol ssh --api-protocol http --api-host 10.46.31.166:8929
+   39  nano ~/.config/glab-cli/config.yml
+   40  glab auth status
+   41  nano ~/.config/glab-cli/config.yml
+   42  glab auth status
+   43  glab repo list
+   44  glab auth status
+   45  glab repo list
+   46  glab config set -g host 10.46.31.166:8929
+   47  glab repo list
+   48  glab auth status
+   49  sudo nano /etc/gitlab/gitlab.rb
+   50  docker exec -it gitlab-ce bash
+   51  sudo nano /etc/docker/daemon.json
+   52  sudo systemctl daemon-reload
+   53  sudo systemctl restart docker
+   54  docker login 10.46.31.166:5050
+   55  docker login 10.46.31.166:5050 -u bdiakite -p glpat-pt1foST96mMB4TmPoor0-G86MQp1OjMH.01.0w00pvj7p
+   56  sudo nano /etc/docker/daemon.json
+   57  sudo systemctl daemon-reload
+   58  docker login 10.46.31.166:5050 -u bdiakite -p glpat-pt1foST96mMB4TmPoor0-G86MQp1OjMH.01.0w00pvj7p
+   59  sudo systemctl restart docker
+   60  docker login 10.46.31.166:5050 -u bdiakite -p glpat-pt1foST96mMB4TmPoor0-G86MQp1OjMH.01.0w00pvj7p
+   61  docker ps | grep flask-datta-able
+   62  cd ..
+   63  cd gitlab-ce
+   64  docker compose up -d
+   65  docker exec -it gitlab-runner2 bash
+   66  sudo nano /mnt/docker-volumes/gitlab/runner2/config.toml
+   67  sudo nano /etc/docker/daemon.json
+   68  sudo nano /mnt/docker-volumes/gitlab/runner2/config.toml
+   69  gitlab-runner run
+   70  docker exec -it gitlab-runner2 bash
+   71  cat /etc/docker/daemon.json
+   72  ls
+   73  git clone https://github.com/SoniKast/projet_4DEVOPS.git
+   74  cd projet_4DEVOPS
+   75  git clone http://10.46.31.166:8929/bdiakite/datta-able-bgm-16-04-2026.git
+   76  ls
+   77  git add .
+   78  git commit -m "dossier"
+   79  git push
+   80  cd ..
+   81  cd datta-able-bgm-16-04-2026/
+   82  ls
+   83  git add .
+   84  git commit -m "ajout du projet dans le git"
+   85  git push
+   86  docker ps
+   87  docker exec -it gitlab-runner bash
+   88  nano /etc/gitlab-runner/config.toml
+   89  nano /mnt/docker-volumes/gitlab/runner/config.toml
+   90  sudo nano /mnt/docker-volumes/gitlab/runner/config.toml
+   91  glab auth status
+   92  glab repo lis
+   93  glab repo list
+   94  sudo nano /etc/gitlab/gitlab.rb
+   95  sudo nano /etc/docker/daemon.json
+   96  sudo systemctl daemon-reload
+   97  docker exec -it gitlab-runner bash
+   98  sudo nano /etc/gitlab/gitlab.rb
+   99  sudo systemctl restart docker
+  100  sudo nano /etc/docker/daemon.json
+  101  sudo systemctl daemon-reload
+  102  sudo systemctl restart docker
+  103  docker ps
+  104  watch -n 1 docker ps
+  105  docker-compuse up -d db nginx
+  106  docker compose up -d db nginx
+  107  docker compose down appseed_app
+  108  docker stop appseed_app
+  109  docker compose up -d db nginx
+  110  docker stop appseed_app
+  111  docker compose down
+  112  docker compose up -d db nginx
+  113  docker compose down
+  114  docker compose up -d db nginx
+  115  docker network ls
+  116  watch -n 1 docker ps
+  117  docker compose down
+  118  docker network ls
+  119  docker compose up -d
+  120  docker network ls
+  121  watch -n 1 docker ps
+  122  docker logs appseed_app
+  123  docker logs mysql_db
+  124  watch -n 1 docker ps
+  125  docker logs mysql_db
+  126  docker logs appseed_app
+  127  docker compose up -d
+  128  docker compose down
+  129  docker compose up -d
+  130  docker logs appseed_app
+  131  docker logs mysql
+  132  docker logs mysql_db
+  133  docker exec -it mysql_db bash
+  134  docker compose up -d
+  135  watch -n 1 docker ps
+  136  docker logs mysql_db
+  137  docker logs mysql_db -f
+  138  docker exec -it mysql_db bash
+  139  watch -n 1 docker ps
+  140  docker exec -it mysql_db /usr/bin/mysqldump -u root -p rootpswd
+  141  docker exec -it mysql_db /usr/bin/mysqldump -u root -p rootpswd datta-able
+  142  docker exec -it mysql_db /usr/bin/mysqldump -u root -p datta-able
+  143  docker exec -it mysql_db /usr/bin/mysqldump -u root -p datta-able rootpswd
+  144  docker exec -it mysql_db /usr/bin/mysqldump -u root -prootpswd datta-able
+  145  history > history-projet-DIAKITE-Balla.log
